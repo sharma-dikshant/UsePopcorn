@@ -59,8 +59,8 @@ export default function App() {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
 
-  // experiments to see the timeLines of different effects
-
+  //! experiments to see the timeLines of different effects
+  /*
   useEffect(function () {
     console.log("A");
   }, []);
@@ -70,16 +70,17 @@ export default function App() {
   });
 
   console.log("C");
-
-  //===============================================
+ */
+  //!===============================================
 
   const temp = "prestige";
   useEffect(function () {
     async function fetchMovies() {
       try {
         setIsLoading(true);
+        setError('');
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${temp}`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
         );
         if (!res.ok) throw new Error("Something went Wrong");
         const data = await res.json();
@@ -95,7 +96,7 @@ export default function App() {
       }
     }
     fetchMovies();
-  }, []);
+  }, [query]);
 
   return (
     <>
