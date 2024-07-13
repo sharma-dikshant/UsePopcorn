@@ -58,7 +58,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
-  const [selectedID, setSelectedID] = useState("tt1375666");
+  const [selectedID, setSelectedID] = useState(null);
 
   //! experiments to see the timeLines of different effects
   /*
@@ -75,7 +75,11 @@ export default function App() {
   //!===============================================
 
   function onSelectMovie(id) {
-    setSelectedID(id);
+    setSelectedID((prev) => (prev === id ? null : id));
+  }
+
+  function handleOnCloseMovieDetail() {
+    setSelectedID(null);
   }
 
   useEffect(
@@ -128,7 +132,10 @@ export default function App() {
         </Box>
         <Box>
           {selectedID ? (
-            <MovieDetails selectedID={selectedID} />
+            <MovieDetails
+              selectedID={selectedID}
+              onCloseMovieDetail={handleOnCloseMovieDetail}
+            />
           ) : (
             <>
               <WatchedSummary watched={watched} />
@@ -213,7 +220,7 @@ function Box({ children }) {
 
 function MovieList({ movies, onSelectMovie }) {
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie) => (
         <Movie movie={movie} key={movie.imdbID} onSelectMovie={onSelectMovie} />
       ))}
@@ -236,8 +243,16 @@ function Movie({ movie, onSelectMovie }) {
   );
 }
 
-function MovieDetails({ selectedID }) {
-  return <div className="details">{selectedID}</div>;
+function MovieDetails({ selectedID, onCloseMovieDetail }) {
+  return (
+    <div className="details">
+      <button className="btn-back" onClick={onCloseMovieDetail}>
+        {" "}
+        &larr;
+      </button>
+      {selectedID}
+    </div>
+  );
 }
 
 /*function WatchedBox() {
