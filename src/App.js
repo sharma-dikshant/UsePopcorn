@@ -57,21 +57,41 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
 
+  // experiments to see the timeLines of different effects
+
+  useEffect(function () {
+    console.log("A");
+  }, []);
+
+  useEffect(function () {
+    console.log("B");
+  });
+
+  console.log("C");
+
+  //===============================================
+
+  const temp = "prestige";
   useEffect(function () {
     async function fetchMovies() {
       try {
         setIsLoading(true);
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=interstellar`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${temp}`
         );
         if (!res.ok) throw new Error("Something went Wrong");
         const data = await res.json();
+        if (data.Response === "False") throw new Error("Movie not Found!");
+
         setMovies(data.Search);
-        setIsLoading(false);
+        // setIsLoading(false);
       } catch (err) {
         console.log(err.message);
         setError(err.message);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchMovies();
@@ -80,14 +100,14 @@ export default function App() {
   return (
     <>
       <NavBar>
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
         <Box>
           {isLoading && <Loader />}
           {!isLoading && !error && <MovieList movies={movies} />}
-          {isLoading && error && <ErrorMessage message={error} />}
+          {error && <ErrorMessage message={error} />}
           {/* {isLoading ? <Loader /> : <MovieList movies={movies} />} */}
         </Box>
         <Box>
@@ -130,9 +150,7 @@ function Logo() {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
-
+function Search({ query, setQuery }) {
   return (
     <input
       className="search"
