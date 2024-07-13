@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import StarRating from "./StarRating";
 
 const tempMovieData = [
   {
@@ -244,13 +245,47 @@ function Movie({ movie, onSelectMovie }) {
 }
 
 function MovieDetails({ selectedID, onCloseMovieDetail }) {
+  const [movie, setMovie] = useState({});
+
+  const {
+    Title: title,
+    Year: year,
+    Poster: poster,
+    Runtime: runtime,
+    imdbRating,
+    Plot: plot,
+    Released: released,
+    Actors: actors,
+    Director: director,
+    Genre: genre,
+  } = movie;
+
+  console.log(title, year);
+
+  useEffect(function () {
+    async function fetchDetails() {
+      const res = await fetch(
+        `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedID}`
+      );
+      const data = await res.json();
+      // console.log(data);
+      setMovie(data);
+    }
+
+    fetchDetails();
+  }, [selectedID]);
   return (
     <div className="details">
-      <button className="btn-back" onClick={onCloseMovieDetail}>
-        {" "}
-        &larr;
-      </button>
-      {selectedID}
+      <header>
+        <button className="btn-back" onClick={onCloseMovieDetail}>
+          {" "}
+          &larr;
+        </button>
+        <img src={poster} alt={`poster of ${movie}`} />
+      </header>
+      <section>
+        <StarRating />
+      </section>
     </div>
   );
 }
