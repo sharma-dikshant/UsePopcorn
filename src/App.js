@@ -288,6 +288,19 @@ function MovieDetails({
     [selectedID]
   );
 
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `Movie | ${title}`;
+
+      return function () {
+        document.title = "usePopcorn";
+        console.log(`clean up function for ${title}`); 
+      };
+    },
+    [title]
+  );
+
   return (
     <div className="details">
       {/* <header>
