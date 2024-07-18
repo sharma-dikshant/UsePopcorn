@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import StarRating from "./StarRating";
 
 const tempWatchedData = [
@@ -31,22 +31,11 @@ const KEY = "33c0c1af";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedID, setSelectedID] = useState(null);
-
-  // const [watched, setWatched] = useState([]);
-
-  const [watched, setWatched] = useState(function () {
-    return JSON.parse(localStorage.getItem("movies"));
-  });
-
-  // ⬆️this method is more preferred and it ensure that the function only executes once.
-
-  // const [watched, setWatched] = useState(
-  //   JSON.parse(localStorage.getItem("movies"))
-  // );
 
   //! experiments to see the timeLines of different effects
   /*
@@ -72,21 +61,11 @@ export default function App() {
 
   function handleOnAddWatchedMovie(movie) {
     setWatched((watched) => [...watched, movie]);
-    //! storing watched movies to localStorage
-    // localStorage.setItem("movies", JSON.stringify([...watched, movie]));
-    // //⬆️ here we have to pass new array because the watched state does'nt updates immediately
   }
 
   function handleOnDeleteMovie(id) {
     setWatched((movies) => movies.filter((movie) => movie.imdbID !== id));
   }
-
-  useEffect(
-    function () {
-      localStorage.setItem("movies", JSON.stringify(watched));
-    },
-    [watched]
-  );
 
   useEffect(
     function () {
@@ -104,12 +83,12 @@ export default function App() {
           if (data.Response === "False") throw new Error("Movie not Found!");
 
           setMovies(data.Search);
-          // console.log(data.Search);
+          console.log(data.Search);
           setError("");
           // setIsLoading(false);
         } catch (err) {
           if (!err.name !== "AbortName") {
-            // console.log(err.message);
+            console.log(err.message);
             setError(err.message);
           }
         } finally {
@@ -202,23 +181,6 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
-
-  //! to focus to input field as soon as the page loaded
-  
-  //⬇️but this method is more imperative and not react type
-
-  // useEffect(function () {
-  //   const el = document.querySelector(".search");
-  //   el.focus();
-  // }, []);
-
-  // another way is to use refs
-  const inputEl = useRef(null);
-
-  useEffect(()=>{
-    inputEl.current.focus();
-  },[])
-
   return (
     <input
       className="search"
@@ -226,7 +188,6 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
-      ref={inputEl}
     />
   );
 }
@@ -292,6 +253,7 @@ function MovieDetails({
   const [movie, setMovie] = useState({});
   const [userRating, setUserRating] = useState("");
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedID);
+  
 
   const {
     Title: title,
@@ -307,14 +269,6 @@ function MovieDetails({
   } = movie;
 
   // console.log(title, year);
-
-  //! testing react hook rules
-
-  // if (imdbRating > 8) {
-  //   const [isTop, setIsTop] = useState(true);
-  // }
-
-  // if (imdbRating > 8) return <p>Best Movie</p>;
 
   function handleAddMovie() {
     const newWatchedMovie = {
@@ -335,7 +289,7 @@ function MovieDetails({
       function callback(e) {
         if (e.code === "Escape") {
           onCloseMovieDetail();
-          // console.log("closing");
+          console.log("closing");
         }
       }
       document.addEventListener("keydown", callback);
@@ -369,7 +323,7 @@ function MovieDetails({
 
       return function () {
         document.title = "usePopcorn";
-        // console.log(`clean up function for ${title}`);
+        console.log(`clean up function for ${title}`);
       };
     },
     [title]
