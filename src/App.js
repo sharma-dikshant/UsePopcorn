@@ -69,12 +69,14 @@ export default function App() {
 
   useEffect(
     function () {
+      const controller = new AbortController();
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError("");
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal }
           );
           if (!res.ok) throw new Error("Something went Wrong");
           const data = await res.json();
@@ -82,10 +84,13 @@ export default function App() {
 
           setMovies(data.Search);
           console.log(data.Search);
+          setError("");
           // setIsLoading(false);
         } catch (err) {
-          console.log(err.message);
-          setError(err.message);
+          if (!err.name !== "AbortName") {
+            console.log(err.message);
+            setError(err.message);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -95,7 +100,13 @@ export default function App() {
         setError("");
         return;
       }
+
+      handleOnCloseMovieDetail();
       fetchMovies();
+
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
@@ -242,6 +253,7 @@ function MovieDetails({
   const [movie, setMovie] = useState({});
   const [userRating, setUserRating] = useState("");
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedID);
+  
 
   const {
     Title: title,
@@ -274,6 +286,22 @@ function MovieDetails({
 
   useEffect(
     function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          onCloseMovieDetail();
+          console.log("closing");
+        }
+      }
+      document.addEventListener("keydown", callback);
+
+      // to ensure that as soon as the component unmount the event listener should be removed
+      return () => document.removeEventListener("keydown", callback);
+    },
+    [onCloseMovieDetail]
+  );
+
+  useEffect(
+    function () {
       async function fetchDetails() {
         const res = await fetch(
           `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedID}`
@@ -295,7 +323,7 @@ function MovieDetails({
 
       return function () {
         document.title = "usePopcorn";
-        console.log(`clean up function for ${title}`); 
+        console.log(`clean up function for ${title}`);
       };
     },
     [title]
@@ -392,15 +420,15 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>⭐️</span>
-          <span>{avgImdbRating}</span>
+          <span>{avgImdbRating.toFixed(1)}</span>
         </p>
         <p>
           <span>🌟</span>
-          <span>{avgUserRating}</span>
+          <span>{avgUserRating.toFixed(1)}</span>
         </p>
         <p>
           <span>⏳</span>
-          <span>{avgRuntime} min</span>
+          <span>{avgRuntime.toFixed(1)} min</span>
         </p>
       </div>
     </div>

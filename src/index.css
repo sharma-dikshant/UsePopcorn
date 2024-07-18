@@ -138,7 +138,7 @@ body {
 .list {
   list-style: none;
   padding: 0.8rem 0;
-  overflow: scroll;
+  /* overflow: hidden; */
 }
 
 .list-watched {
@@ -156,6 +156,21 @@ body {
 
   padding: 1.6rem 3.2rem;
   border-bottom: 1px solid var(--color-background-100);
+}
+
+ul.list.list-movies {
+  padding: 8px 0;
+  overflow: hidden;
+  max-height: 100%; /* Adjust the height as needed */
+  position: relative;
+}
+
+ul.list.list-movies:hover {
+  overflow-y: auto;
+}
+
+ul.list.list-movies::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for WebKit browsers */
 }
 
 .list.list-movies li {
