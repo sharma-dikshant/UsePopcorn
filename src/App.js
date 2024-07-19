@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
+import { useMovies } from "./useMovies";
 
 // const tempWatchedData = [
 //   {
@@ -30,9 +31,6 @@ const average = (arr) =>
 const KEY = "33c0c1af";
 
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedID, setSelectedID] = useState(null);
 
@@ -41,6 +39,11 @@ export default function App() {
   const [watched, setWatched] = useState(function () {
     return JSON.parse(localStorage.getItem("movies"));
   });
+
+  const { movies, isLoading, error } = useMovies(
+    query,
+    handleOnCloseMovieDetail
+  );
 
   // ⬆️this method is more preferred and it ensure that the function only executes once.
 
@@ -86,50 +89,6 @@ export default function App() {
       localStorage.setItem("movies", JSON.stringify(watched));
     },
     [watched]
-  );
-
-  useEffect(
-    function () {
-      const controller = new AbortController();
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError("");
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-            { signal: controller.signal }
-          );
-          if (!res.ok) throw new Error("Something went Wrong");
-          const data = await res.json();
-          if (data.Response === "False") throw new Error("Movie not Found!");
-
-          setMovies(data.Search);
-          // console.log(data.Search);
-          setError("");
-          // setIsLoading(false);
-        } catch (err) {
-          if (!err.name !== "AbortName") {
-            // console.log(err.message);
-            setError(err.message);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-      if (query.length < 3) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-
-      handleOnCloseMovieDetail();
-      fetchMovies();
-
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
   );
 
   return (
@@ -317,13 +276,13 @@ function MovieDetails({
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedID);
 
   // we wanted to keep the count of how many time does the user rate the movie but we dont want to re-render the component as the count's value is update
-  // so this is a great sign to use useRef hook 
+  // so this is a great sign to use useRef hook
 
   const countRef = useRef(0);
 
   useEffect(() => {
     if (userRating) countRef.current += 1;
-  });
+  }, [userRating]);
 
   const {
     Title: title,
