@@ -202,9 +202,8 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
-
   //! to focus to input field as soon as the page loaded
-  
+
   //⬇️but this method is more imperative and not react type
 
   // useEffect(function () {
@@ -213,11 +212,35 @@ function Search({ query, setQuery }) {
   // }, []);
 
   // another way is to use refs
+
   const inputEl = useRef(null);
 
-  useEffect(()=>{
-    inputEl.current.focus();
-  },[])
+  // useEffect(() => {
+  //   inputEl.current.focus();
+  // }, []);
+
+  useEffect(() => {
+    function callback(e) {
+      if (document.activeElement === inputEl.current) return;
+      if (e.code === "Enter") {
+        setQuery("");
+        inputEl.current.focus();
+      }
+    }
+
+    document.addEventListener("keydown", callback);
+  }, []);
+
+  // // useEffect(function (e) {
+  // //   function callback() {
+  // //     if ((e.code = "Enter")) {
+  // //       setQuery("");
+  // //       inputEl.current.focus();
+  // //     }
+  // //   }
+  // //   callback();
+  // //   document.addEventListener("keydown", callback);
+  // // }, [setQuery]);
 
   return (
     <input
