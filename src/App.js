@@ -342,7 +342,7 @@ function MovieDetails({
     function () {
       async function fetchDetails() {
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedID}`
+          `https://www.omdbapi.com/?apikey=${KEY}&i=${selectedID}`
         );
         const data = await res.json();
         // console.log(data);
